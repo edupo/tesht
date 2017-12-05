@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite errors="4" failures="20" name="pytest" skips="380" tests="1" time="0.354">
+    <testcase classname="tests.test1" file="tests/test.py" line="42" name="test_empty" time="0.010696172714233398"/>
+  </testsuite>
+</testsuites>
