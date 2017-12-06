@@ -1,4 +1,4 @@
-# tesht
+# tesht [![Build Status](https://travis-ci.org/edupo/tesht.svg?branch=master)](https://travis-ci.org/edupo/tesht)
 Basic command line that checks the return value of any command and creates a test report (JUNIT for convenience) using the stdout and stderr to create the failed test result.
 
 # Usage
