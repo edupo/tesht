@@ -1,33 +1,39 @@
 package main
 
 import (
-"fmt"
-"os"
-"os/exec"
-"strings"
+	"fmt"
+	//	"github.com/edupo/tesht/junit"
+	"os"
+	"os/exec"
+	"strings"
 )
 
 func main() {
 
-  passed_cmd := strings.Join(os.Args[1:], " ")
+	//testSuites, err := junit.LoadFromFile("results.xml")
 
-  cmd := exec.Command(passed_cmd)
+	// Command creation
+	passedCmd := strings.Join(os.Args[1:], " ")
+	cmd := exec.Command("bash", "-c", passedCmd)
 
-  output, err := cmd.CombinedOutput()
+	// Creation of the test case (it also initializes time)
+	//testCase := NewTestCase(passedCmd)
+
+	// Command execution
+	output, err := cmd.CombinedOutput()
+
 	printError(err)
 	printOutput(output)
-
-
 }
 
 func printError(err error) {
-  if err != nil {
-    os.Stderr.WriteString(fmt.Sprintf("-- Error: %s\n", err.Error()))
-  }
+	if err != nil {
+		os.Stderr.WriteString(fmt.Sprintf("-- Error: %s\n", err.Error()))
+	}
 }
 
 func printOutput(outs []byte) {
-  if len(outs) > 0 {
-    fmt.Printf("-- Output: %s\n", string(outs))
-  }
+	if len(outs) > 0 {
+		fmt.Printf("-- Output: %s\n", string(outs))
+	}
 }
