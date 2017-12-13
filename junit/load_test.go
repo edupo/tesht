@@ -21,13 +21,10 @@ func TestJUnitLoadFromFile(t *testing.T) {
 		path2 = "junit/" + path2
 	}
 
-	testSuites1, err := LoadFromFile(path1)
+	testSuites1, err := Load(path1)
 	assert.NoError(err)
-	testSuites2, err := LoadFromFile(path2)
+	testSuites2, err := Load(path2)
 	assert.NoError(err)
-
-	//fmt.Printf("%#v\n", testSuites1)
-	//fmt.Printf("%#v\n", testSuites2)
 
 	assert.EqualValues(testSuites1, testSuites2)
 }

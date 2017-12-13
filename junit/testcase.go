@@ -42,6 +42,8 @@ func NewTestCase(name string) *TestCase {
 	return testCase
 }
 
+// Done function sets the parameters of the test case depending on the passed
+// values
 func (testCase *TestCase) Done(output []byte, err error) {
 	// TODO: Consider ExitError or other error types
 	testCase.Update()

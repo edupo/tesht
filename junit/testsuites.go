@@ -7,6 +7,7 @@ package junit
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -25,10 +26,10 @@ type TestSuites struct {
 	TestSuites []TestSuite `xml:"testsuite"`
 }
 
-// FindTestSuiteByName returns a reference to a TestSuite or an error.
+// SearchTestSuiteByName returns a reference to a TestSuite or an error.
 func (testSuites *TestSuites) SearchTestSuiteByName(testSuiteName string) (*TestSuite, error) {
 	if len(testSuites.TestSuites) == 0 {
-		return nil, fmt.Errorf("No test suites to search", testSuiteName)
+		return nil, errors.New("No test suites to search")
 	}
 	for i := 0; i < len(testSuites.TestSuites); i++ {
 		testSuite := &testSuites.TestSuites[i]
@@ -39,7 +40,7 @@ func (testSuites *TestSuites) SearchTestSuiteByName(testSuiteName string) (*Test
 	return nil, fmt.Errorf("Test suite %s not found", testSuiteName)
 }
 
-// FindTestSuiteByName returns a reference to a TestSuite, if it does not exists
+// GetTestSuite returns a reference to a TestSuite, if it does not exists
 // an empty one will be created.
 func (testSuites *TestSuites) GetTestSuite(name string) *TestSuite {
 	var testSuite *TestSuite
