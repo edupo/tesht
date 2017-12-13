@@ -7,8 +7,10 @@ package junit
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 )
 
 // TestSuites is a container for a list of individual test suites.
@@ -24,21 +26,11 @@ type TestSuites struct {
 	TestSuites []TestSuite `xml:"testsuite"`
 }
 
-/*
-func (testSuites *TestSuites) DoneOk(testCaseName string, testSuiteName string) {
-	// Locate the test suit required
-
-	testSuite, err := testSuites.FindTestSuiteByName(testSuiteName)
-	if err != nil && len(testSuites.TestSuites) != 0 {
-		testSuite = &testSuites.TestSuites[0]
-	} else {
-		testSuite := NewTestCase(testCaseName)
+// SearchTestSuiteByName returns a reference to a TestSuite or an error.
+func (testSuites *TestSuites) SearchTestSuiteByName(testSuiteName string) (*TestSuite, error) {
+	if len(testSuites.TestSuites) == 0 {
+		return nil, errors.New("No test suites to search")
 	}
-}
-*/
-
-// FindTestSuiteByName returns a reference to a TestSuite or an error.
-func (testSuites *TestSuites) FindTestSuiteByName(testSuiteName string) (*TestSuite, error) {
 	for i := 0; i < len(testSuites.TestSuites); i++ {
 		testSuite := &testSuites.TestSuites[i]
 		if testSuite.Name == testSuiteName {
@@ -48,9 +40,34 @@ func (testSuites *TestSuites) FindTestSuiteByName(testSuiteName string) (*TestSu
 	return nil, fmt.Errorf("Test suite %s not found", testSuiteName)
 }
 
+// GetTestSuite returns a reference to a TestSuite, if it does not exists
+// an empty one will be created.
+func (testSuites *TestSuites) GetTestSuite(name string) *TestSuite {
+	var testSuite *TestSuite
+	testSuite, err := testSuites.SearchTestSuiteByName(name)
+	if err == nil {
+		return testSuite
+	}
+	testSuite = new(TestSuite)
+	testSuite.Name = name
+	testSuites.TestSuites = append(testSuites.TestSuites, *testSuite)
+	testSuite, err = testSuites.SearchTestSuiteByName(name)
+	if err != nil {
+		panic(err)
+	}
+	return testSuite
+}
+
 // Update JUnit data (counters, times and maybe others)
 func (testSuites *TestSuites) Update() {
+	// Reset TestSuites values.
 	testSuites.XMLName = xml.Name{Local: "testsuites"}
+	testSuites.Tests = 0
+	testSuites.Failures = 0
+	testSuites.Errors = 0
+	testSuites.Skips = 0
+	testSuites.Time = 0
+	// Checking values again.
 	for i := 0; i < len(testSuites.TestSuites); i++ {
 		testSuite := &testSuites.TestSuites[i]
 		testSuite.Update()
@@ -62,10 +79,10 @@ func (testSuites *TestSuites) Update() {
 	}
 }
 
-// LoadFromFile loads JUnit tests from a file and returns always a TestSuites
+// Load loads JUnit tests from a file and returns always a TestSuites
 // object. Even if the JUnit file is formatted using individual TestSuite
 // objects.
-func LoadFromFile(path string) (*TestSuites, error) {
+func Load(path string) (*TestSuites, error) {
 	testSuites := new(TestSuites)
 
 	bytes, err := ioutil.ReadFile(path)
@@ -89,4 +106,31 @@ func LoadFromFile(path string) (*TestSuites, error) {
 
 	// If any of these succeed there is no further check.
 	return nil, fmt.Errorf("File %s does not contain usable JUnit reports", path)
+}
+
+// Save saves the JUnit into a file.
+func (testSuites *TestSuites) Save(path string) error {
+	output, err := xml.MarshalIndent(testSuites, "  ", "    ")
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(path, output, 0664)
+}
+
+//LoadOrCreate loads a TestSuites structure from a JUnit report file. If it does
+//not exist it just creates a new empty structure.
+func LoadOrCreate(path string) *TestSuites {
+	var testSuites *TestSuites
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		testSuites = new(TestSuites)
+		testSuites.Update()
+	} else {
+		testSuites, err = Load(path)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return testSuites
 }
