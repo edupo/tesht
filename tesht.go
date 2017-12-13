@@ -16,9 +16,6 @@ func main() {
 
 	passedCmd := strings.Join(os.Args[1:], " ")
 	cmd := exec.Command("bash", "-c", passedCmd)
-
-	fmt.Printf("-- Command: %s\n", passedCmd)
-
 	execCommand(cmd, testSuites)
 
 	testSuites.Save(filePath)
