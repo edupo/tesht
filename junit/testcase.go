@@ -6,7 +6,6 @@
 package junit
 
 import (
-	"bytes"
 	"encoding/xml"
 	"time"
 )
@@ -51,8 +50,7 @@ func (testCase *TestCase) Done(output []byte, err error) {
 		errStruct := Error{}
 		errStruct.Type = err.Error()
 		if len(output) > 0 {
-			n := bytes.IndexByte(output, 0)
-			errStruct.Message = string(output[:n])
+			errStruct.Message = string(output)
 		}
 		testCase.Errors = append(testCase.Errors, errStruct)
 	}
