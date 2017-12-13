@@ -6,6 +6,7 @@
 package junit
 
 import (
+	"bytes"
 	"encoding/xml"
 	"time"
 )
@@ -34,15 +35,30 @@ type Error struct {
 
 // NewTestCase returns a new TestCase with the passed name
 func NewTestCase(name string) *TestCase {
-	tc := new(TestCase)
-	tc.Name = name
-	tc.InitialTime = time.Now()
-	return tc
+	testCase := new(TestCase)
+	testCase.XMLName = xml.Name{Local: "testcase"}
+	testCase.Name = name
+	testCase.InitialTime = time.Now()
+	return testCase
+}
+
+func (testCase *TestCase) Done(output []byte, err error) {
+	// TODO: Consider ExitError or other error types
+	testCase.Update()
+	if err != nil {
+		errStruct := Error{}
+		errStruct.Type = err.Error()
+		if len(output) > 0 {
+			n := bytes.IndexByte(output, 0)
+			errStruct.Message = string(output[:n])
+		}
+		testCase.Errors = append(testCase.Errors, errStruct)
+	}
 }
 
 // Update test case time data. Measures the time elapsed since InitialTime filed
 func (testCase *TestCase) Update() {
-	d := time.Until(testCase.InitialTime)
+	d := time.Since(testCase.InitialTime)
 	testCase.Time = d.Seconds()
 }
 

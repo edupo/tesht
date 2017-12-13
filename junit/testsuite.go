@@ -22,7 +22,7 @@ type TestSuite struct {
 	Skips       int        `xml:"skips,attr,omitempty"`
 	Hostname    string     `xml:"hostname,attr,omitempty"`
 	TestCases   []TestCase `xml:"testcase,omitempty"`
-	Propertires []Property `xml:"properties>property,omitempty"`
+	Propertires []Property `xml:"properties,omitempty>property,omitempty"`
 	SystemOut   string     `xml:"system-out,omitempty"`
 	SystemErr   string     `xml:"system-err,omitempty"`
 }
@@ -35,7 +35,15 @@ type Property struct {
 
 // Update JUnit data (counters, times and maybe others)
 func (testSuite *TestSuite) Update() {
+	// Reset TestSuite values.
 	testSuite.XMLName = xml.Name{Local: "testsuite"}
+	testSuite.Tests = 0
+	testSuite.Failures = 0
+	testSuite.Disabled = 0
+	testSuite.Errors = 0
+	testSuite.Skips = 0
+	testSuite.Time = 0
+	// Checking values again.
 	for _, testCase := range testSuite.TestCases {
 		if testCase.Skipped != "" {
 			testSuite.Skips++

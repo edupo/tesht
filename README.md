@@ -8,9 +8,9 @@ tesht <command> <args> <pipes> <whatever> ...
 This command will generate or add a line to a `results.xml` file in the same folder where `tesht` is called.
 
 # TODO
- - Parsing `result.xml` in
- - Adding result to xml structures
- - Writting `result.xml` back into disk
+ - _Parsing `result.xml` in_
+ - _Adding result to xml structures_
+ - _Writting `result.xml` back into disk_
  - Flags and options ??
 
 # Motivation

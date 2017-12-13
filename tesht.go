@@ -2,28 +2,26 @@ package main
 
 import (
 	"fmt"
-	//	"github.com/edupo/tesht/junit"
+	"github.com/edupo/tesht/junit"
 	"os"
 	"os/exec"
 	"strings"
 )
 
+var filePath = "results.xml"
+
 func main() {
 
-	//testSuites, err := junit.LoadFromFile("results.xml")
+	testSuites := junit.LoadOrCreate(filePath)
 
-	// Command creation
 	passedCmd := strings.Join(os.Args[1:], " ")
 	cmd := exec.Command("bash", "-c", passedCmd)
 
-	// Creation of the test case (it also initializes time)
-	//testCase := NewTestCase(passedCmd)
+	fmt.Printf("-- Command: %s\n", passedCmd)
 
-	// Command execution
-	output, err := cmd.CombinedOutput()
+	execCommand(cmd, testSuites)
 
-	printError(err)
-	printOutput(output)
+	testSuites.Save(filePath)
 }
 
 func printError(err error) {
@@ -36,4 +34,22 @@ func printOutput(outs []byte) {
 	if len(outs) > 0 {
 		fmt.Printf("-- Output: %s\n", string(outs))
 	}
+}
+
+func execCommand(cmd *exec.Cmd, testSuites *junit.TestSuites) {
+
+	// Creation of the test case (it also initializes time)
+	testCase := junit.NewTestCase(strings.Join(cmd.Args[0:], " "))
+
+	// Command execution
+	output, err := cmd.CombinedOutput()
+	testCase.Done(output, err)
+
+	testSuite := testSuites.GetTestSuite("bash")
+	testSuite.TestCases = append(testSuite.TestCases, *testCase)
+
+	testSuites.Update()
+
+	printError(err)
+	printOutput(output)
 }
